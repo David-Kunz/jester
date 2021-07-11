@@ -2,6 +2,8 @@
 
 A Neovim plugin to easily run and debug Jest tests.
 
+![jester](https://user-images.githubusercontent.com/1009936/125202966-77459800-e276-11eb-805e-f87ef204cf47.gif)
+
 ## Installation
 
 Requirements: Neovim >= 0.5, [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), for debugging [nvim-dap](https://github.com/mfussenegger/nvim-dap)

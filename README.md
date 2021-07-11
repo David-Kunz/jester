@@ -20,7 +20,7 @@ Plug 'David-Kunz/jester'
 :lua require"jester".run()
 ```
 
-### Debug nearest test under the cursor
+### Debug nearest test(s) under the cursor
 
 ```
 :lua require"jester".debug()

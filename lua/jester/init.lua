@@ -84,7 +84,7 @@ local function debug_jest(o)
   end
   local runtimeArgs = o.dap.runtimeArgs
   if runtimeArgs == nil then
-    runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', result, '--', file}
+    runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'}
   end
   for key, value in pairs(runtimeArgs) do
     runtimeArgs[key] = value:gsub("$result", result):gsub("$file", file)
@@ -109,7 +109,6 @@ local function debug_jest(o)
   if port == nil then
     port = 9229
   end
-  print("port: " .. port)
   dap.run({
         type = type,
         request = request,

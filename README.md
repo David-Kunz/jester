@@ -38,7 +38,7 @@ These defaults can be overwritten:
     type = 'node2',
     request = 'launch',
     cwd = vim.fn.getcwd(),
-    runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', result, '--', file},
+    runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'},
   }
 }
 ```

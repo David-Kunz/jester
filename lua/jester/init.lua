@@ -1,5 +1,7 @@
 local ts_utils = require("nvim-treesitter.ts_utils")
 
+local last_run
+
 local function has_value (tab, val)
     for index, value in ipairs(tab) do
         if value == val then
@@ -123,8 +125,14 @@ local function debug_jest(o)
 end
 
 local function run(o)
+    local result
+    local file
     if not o then
       o = {}
+    end
+    if o.run_last then
+      result = last_run.result
+      file = last_run.file
     end
     local identifiers = o.identifiers
     if identifiers == nil then
@@ -154,30 +162,35 @@ local function run(o)
     if prepend == nil then
       prepend = {"describe"}
     end
-    local file = vim.fn.expand('%:p')
+    if file == nil then
+      file = vim.fn.expand('%:p')
+    end
     local nearest_node_obj = find_nearest_node_obj(identifiers, prepend, expressions)
     local nearest_node = nearest_node_obj.node
     if not nearest_node then
       print("Could not find any of the following: " .. table.concat(identifiers, ", ") .. ", " .. table.concat(prepend, ", "))
       return
     end
-    local result = get_identifier(nearest_node, stringCharacters)
-    if prepend then
-      local node = prepend_node(nearest_node, prepend, expressions)
-      while node do
-        local parent_identifier = get_identifier(node, stringCharacters)
-        result = parent_identifier .. " " .. result
-        node = prepend_node(node, prepend, expressions)
+    if result == nil then
+      result = get_identifier(nearest_node, stringCharacters)
+      if prepend then
+        local node = prepend_node(nearest_node, prepend, expressions)
+        while node do
+          local parent_identifier = get_identifier(node, stringCharacters)
+          result = parent_identifier .. " " .. result
+          node = prepend_node(node, prepend, expressions)
+        end
       end
-    end
-    if escapeRegex then
-      result = regexEscape(result)
-    end
-    if regexStartEnd then
-      result = "^" .. result
-      if nearest_node_obj.from_identifier then
-        result = result .. "$"
+      if escapeRegex then
+        result = regexEscape(result)
       end
+      if regexStartEnd then
+        result = "^" .. result
+        if nearest_node_obj.from_identifier then
+          result = result .. "$"
+        end
+      end
+      last_run = { result = result, file = file }
     end
     if o.func then
       return o.func({ result = result, file = file, dap = o.dap })
@@ -199,7 +212,21 @@ local function debug(o)
   return run(o)
 end
 
+local function debug_last()
+  local dap = require('dap')
+  dap.disconnect()
+  dap.stop()
+  dap.run_last()
+end
+
+local function run_last()
+  local o = { run_last = true }
+  return run(o)
+end
+
 return {
     run = run,
-    debug = debug
+    run_last = run_last,
+    debug = debug,
+    debug_last = debug_last
 }

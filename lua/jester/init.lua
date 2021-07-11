@@ -133,6 +133,7 @@ local function run(o)
     if o.run_last then
       if last_run == nil then
         print("You must run some test(s) before")
+        return
       end
       result = last_run.result
       file = last_run.file

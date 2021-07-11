@@ -1,6 +1,6 @@
 # jester
 
-A Neovim plugin to easily run and debug Jest tests.
+A Neovim plugin to easily run and debug [Jest](https://jestjs.io/) tests.
 
 ![jester](https://user-images.githubusercontent.com/1009936/125202966-77459800-e276-11eb-805e-f87ef204cf47.gif)
 

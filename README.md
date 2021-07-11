@@ -6,7 +6,7 @@ A [Neovim](https://neovim.io/) plugin to easily run and debug [Jest](https://jes
 
 ## Installation
 
-Requirements: Neovim >= 0.5, [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), for debugging [nvim-dap](https://github.com/mfussenegger/nvim-dap)
+Requirements: [Neovim](https://neovim.io/) >= 0.5, [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), for debugging [nvim-dap](https://github.com/mfussenegger/nvim-dap)
 
 ```
 Plug 'David-Kunz/jester'

@@ -85,10 +85,9 @@ local function debug_jest(o)
   local runtimeArgs = o.dap.runtimeArgs
   if runtimeArgs == nil then
     runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', result, '--', file}
-  else
-    for index, value in ipairs(runtimeArgs) do
-      value = value:gsub("$result", result):gsub("$file", file)
-    end
+  end
+  for key, value in pairs(runtimeArgs) do
+    runtimeArgs[key] = value:gsub("$result", result):gsub("$file", file)
   end
   local sourceMaps = o.dap.sourceMaps
   if sourceMaps == nil then

@@ -131,7 +131,7 @@ local function run(o)
       o = {}
     end
     if o.run_last then
-      if last_run.result == nil then
+      if last_run == nil then
         print("You must run some test(s) before")
       end
       result = last_run.result

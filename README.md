@@ -62,7 +62,3 @@ You can provide options for `run` and `debug`, these are the defaults:
   }
 }
 ```
-
-These settings might change in the future.
-
-

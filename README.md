@@ -2,7 +2,7 @@
 
 A Neovim plugin to easily run and debug [Jest](https://jestjs.io/) tests.
 
-![jester](https://user-images.githubusercontent.com/1009936/125202966-77459800-e276-11eb-805e-f87ef204cf47.gif)
+![jester](https://user-images.githubusercontent.com/1009936/125203183-ba543b00-e277-11eb-83a2-d7fe912cdec8.gif)
 
 ## Installation
 

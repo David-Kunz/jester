@@ -83,7 +83,6 @@ local function debug_jest(o)
     cwd = vim.fn.getcwd()
   end
   local runtimeArgs = o.dap.runtimeArgs
-  print('before ' .. runtimeArgs)
   if runtimeArgs == nil then
     runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', result, '--', file}
   else
@@ -91,7 +90,6 @@ local function debug_jest(o)
       value = value:gsub("$result", result):gsub("$file", file)
     end
   end
-  print('after ' .. runtimeArgs)
   local sourceMaps = o.dap.sourceMaps
   if sourceMaps == nil then
     sourceMaps = true

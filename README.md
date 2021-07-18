@@ -42,7 +42,7 @@ Plug 'David-Kunz/jester'
 ### Debug current file
 
 ```
-:lua require"jester".debug()
+:lua require"jester".debug_file()
 ```
 
 ### Debug last test(s)

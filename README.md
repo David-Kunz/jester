@@ -21,6 +21,12 @@ Plug 'David-Kunz/jester'
 :lua require"jester".run()
 ```
 
+### Run current file
+
+```
+:lua require"jester".run_file()
+```
+
 ### Run last test(s)
 
 ```
@@ -28,6 +34,12 @@ Plug 'David-Kunz/jester'
 ```
 
 ### Debug nearest test(s) under the cursor
+
+```
+:lua require"jester".debug()
+```
+
+### Debug current file
 
 ```
 :lua require"jester".debug()
@@ -41,7 +53,7 @@ Plug 'David-Kunz/jester'
 
 ## Options
 
-You can provide options for `run` and `debug`, these are the defaults:
+You can specify options for all functions, these are the defaults:
 
 ```lua
 {

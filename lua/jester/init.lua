@@ -65,6 +65,59 @@ local function regexEscape(str, doubleQuote)
 		return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%\\%1")
 end
 
+local function get_result(o)
+  local result
+  local identifiers = o.identifiers
+  if identifiers == nil then
+    identifiers = {"test", "it"}
+  end
+  local stringCharacters = o.stringCharacters
+  if stringCharacters == nil then
+    stringCharacters = {"'", '"'}
+  end
+  local expressions = o.expressions
+  if expressions == nil then
+    expressions = {"call_expression"}
+  end
+  local prepend = o.prepend
+  if prepend == nil then
+    prepend = {"describe"}
+  end
+  local regexStartEnd = o.regexStartEnd
+  if regexStartEnd == nil then
+    regexStartEnd = true
+  end
+  local escapeRegex = o.escapeRegex
+  if escapeRegex == nil then
+    escapeRegex = true
+  end
+  local nearest_node_obj = find_nearest_node_obj(identifiers, prepend, expressions)
+  local nearest_node = nearest_node_obj.node
+  if not nearest_node then
+    print("Could not find any of the following: " .. table.concat(identifiers, ", ") .. ", " .. table.concat(prepend, ", "))
+    return
+  end
+  result = get_identifier(nearest_node, stringCharacters)
+  if prepend then
+    local node = prepend_node(nearest_node, prepend, expressions)
+    while node do
+      local parent_identifier = get_identifier(node, stringCharacters)
+      result = parent_identifier .. " " .. result
+      node = prepend_node(node, prepend, expressions)
+    end
+  end
+  if escapeRegex then
+    result = regexEscape(result)
+  end
+  if regexStartEnd then
+    result = "^" .. result
+    if nearest_node_obj.from_identifier then
+      result = result .. "$"
+    end
+  end
+  return result
+end
+
 local function debug_jest(o)
   local result = o.result
   local file = o.file
@@ -86,10 +139,19 @@ local function debug_jest(o)
   end
   local runtimeArgs = o.dap.runtimeArgs
   if runtimeArgs == nil then
-    runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'}
+    if result then
+      runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'}
+    else
+      runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '--', '$file'}
+    end
   end
   for key, value in pairs(runtimeArgs) do
-    runtimeArgs[key] = value:gsub("$result", result):gsub("$file", file)
+    if string.match(value, "$result") then
+      runtimeArgs[key] = value:gsub("$result", result)
+    end
+    if string.match(value, "$file") then
+      runtimeArgs[key] = runtimeArgs[key]:gsub("$file", file)
+    end
   end
   local sourceMaps = o.dap.sourceMaps
   if sourceMaps == nil then
@@ -124,87 +186,60 @@ local function debug_jest(o)
       })
 end
 
+local function adjust_cmd(cmd, result, file)
+  local adjusted_cmd = cmd
+  if string.match(adjusted_cmd, "$result") then
+      adjusted_cmd = cmd:gsub("$result", result)
+  end
+  if string.match(adjusted_cmd, "$result") then
+    adjusted_cmd = adjusted_cmd:gsub("$file", file)
+  end
+  adjusted_cmd = adjusted_cmd:gsub("\\", "\\\\") -- needs double escaping
+  return adjusted_cmd
+end
+
 local function run(o)
-    local result
-    local file
-    if not o then
-      o = {}
+  local cmd
+  local result
+  local file
+  if not o then
+    o = {}
+  end
+  if o.run_last then
+    if last_run == nil then
+      print("You must run some test(s) before")
+      return
     end
-    if o.run_last then
-      if last_run == nil then
-        print("You must run some test(s) before")
-        return
-      end
-      result = last_run.result
-      file = last_run.file
-    end
-    local identifiers = o.identifiers
-    if identifiers == nil then
-      identifiers = {"test", "it"}
-    end
-    local stringCharacters = o.stringCharacters
-    if stringCharacters == nil then
-      stringCharacters = {"'", '"'}
-    end
-    local cmd = o.cmd
-    if cmd == nil then
+    result = last_run.result
+    file = last_run.file
+    cmd = last_run.cmd
+  end
+  if o.cmd then
+    cmd = o.cmd
+  end
+  if cmd == nil then
+    if o.run_file == true then
+      cmd = "jest -- $file"
+    else
       cmd = "jest -t '$result' -- $file"
     end
-    local expressions = o.expressions
-    if expressions == nil then
-      expressions = {"call_expression"}
-    end
-    local regexStartEnd = o.regexStartEnd
-    if regexStartEnd == nil then
-      regexStartEnd = true
-    end
-    local escapeRegex = o.escapeRegex
-    if escapeRegex == nil then
-      escapeRegex = true
-    end
-    local prepend = o.prepend
-    if prepend == nil then
-      prepend = {"describe"}
-    end
-    if file == nil then
-      file = vim.fn.expand('%:p')
-    end
-    if result == nil then
-      local nearest_node_obj = find_nearest_node_obj(identifiers, prepend, expressions)
-      local nearest_node = nearest_node_obj.node
-      if not nearest_node then
-        print("Could not find any of the following: " .. table.concat(identifiers, ", ") .. ", " .. table.concat(prepend, ", "))
-        return
-      end
-      result = get_identifier(nearest_node, stringCharacters)
-      if prepend then
-        local node = prepend_node(nearest_node, prepend, expressions)
-        while node do
-          local parent_identifier = get_identifier(node, stringCharacters)
-          result = parent_identifier .. " " .. result
-          node = prepend_node(node, prepend, expressions)
-        end
-      end
-      if escapeRegex then
-        result = regexEscape(result)
-      end
-      if regexStartEnd then
-        result = "^" .. result
-        if nearest_node_obj.from_identifier then
-          result = result .. "$"
-        end
-      end
-      last_run = { result = result, file = file }
-    end
-    if o.func then
-      return o.func({ result = result, file = file, dap = o.dap })
-    end
-    vim.cmd(":vsplit | terminal")
-    local normalizedCommand = cmd:gsub("$result", result):gsub("$file", file)
-    normalizedCommand = normalizedCommand:gsub("\\", "\\\\") -- needs double escaping
-    local command = ':call jobsend(b:terminal_job_id, "' .. normalizedCommand .. '\\n")'
-    vim.cmd(command)
+  end
+  if file == nil then
+    file = vim.fn.expand('%:p')
+  end
+  if not o.run_last and not o.run_file then
+    result = get_result(o)
+  end
+  last_run = { result = result, file = file, cmd = cmd }
+  if o.func then
+    return o.func({ result = result, file = file, dap = o.dap })
+  end
+  local adjusted_cmd = adjust_cmd(cmd, result, file)
+  vim.cmd(":vsplit | terminal")
+  local command = ':call jobsend(b:terminal_job_id, "' .. adjusted_cmd .. '\\n")'
+  vim.cmd(command)
 end
+
 
 local function debug(o)
   if o == nil then
@@ -216,21 +251,53 @@ local function debug(o)
   return run(o)
 end
 
-local function debug_last()
+local function debug_last(o)
   local dap = require('dap')
   dap.disconnect()
   dap.stop()
-  dap.run_last()
+  -- dap.run_last() would also work, but we want freely exchange it with run
+  if o == nil then
+    o = {}
+  end
+  if o.func == nil then
+    o.func = debug_jest
+  end
+  o.run_last = true
+  return run(o)
 end
 
-local function run_last()
-  local o = { run_last = true }
+local function run_file(o)
+  if o == nil then
+    o = {}
+  end
+  o.run_file = true
+  return run(o)
+end
+
+local function debug_file(o)
+  if o == nil then
+    o = {}
+  end
+  if o.func == nil then
+    o.func = debug_jest
+  end
+  o.run_file = true
+  return run(o)
+end
+
+local function run_last(o)
+  if o == nil then
+    o = {}
+  end
+  o.run_last = true
   return run(o)
 end
 
 return {
     run = run,
     run_last = run_last,
+    run_file = run_file,
     debug = debug,
-    debug_last = debug_last
+    debug_last = debug_last,
+    debug_file = debug_file
 }

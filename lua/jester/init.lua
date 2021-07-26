@@ -194,6 +194,7 @@ local function adjust_cmd(cmd, result, file)
   if string.match(adjusted_cmd, "$file") then
     adjusted_cmd = adjusted_cmd:gsub("$file", file)
   end
+  adjusted_cmd = adjusted_cmd:gsub('"', '\"')
   adjusted_cmd = adjusted_cmd:gsub("\\", "\\\\") -- needs double escaping
   return adjusted_cmd
 end

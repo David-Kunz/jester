@@ -138,11 +138,12 @@ local function debug_jest(o)
     cwd = vim.fn.getcwd()
   end
   local runtimeArgs = o.dap.runtimeArgs
+  local path_to_jest = o.path_to_jest or 'node_modules/.bin/jest'
   if runtimeArgs == nil then
     if result then
-      runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'}
+      runtimeArgs = {'--inspect-brk', path_to_jest, '--no-coverage', '-t', '$result', '--', '$file'}
     else
-      runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '--', '$file'}
+      runtimeArgs = {'--inspect-brk', path_to_jest, '--no-coverage', '--', '$file'}
     end
   end
   for key, value in pairs(runtimeArgs) do

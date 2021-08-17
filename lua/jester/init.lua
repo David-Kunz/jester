@@ -233,7 +233,7 @@ local function run(o)
   end
   last_run = { result = result, file = file, cmd = cmd }
   if o.func then
-    return o.func({ result = result, file = file, dap = o.dap })
+    return o.func({ result = result, file = file, dap = o.dap, path_to_jest = o.path_to_jest })
   end
   local adjusted_cmd = adjust_cmd(cmd, result, file)
   vim.cmd(":vsplit | terminal")

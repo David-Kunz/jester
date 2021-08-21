@@ -8,9 +8,13 @@ A [Neovim](https://neovim.io/) plugin to easily run and debug [Jest](https://jes
 
 Requirements: [Neovim](https://neovim.io/) >= 0.5, [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), for debugging [nvim-dap](https://github.com/mfussenegger/nvim-dap)
 
-Use your favorite package manager, e.g. [vim-plug](https://github.com/junegunn/vim-plug)
+For [vim-plug](https://github.com/junegunn/vim-plug):
 ```
 Plug 'David-Kunz/jester'
+```
+For [packer](https://github.com/wbthomason/packer.nvim):
+```
+use 'David-Kunz/jester'
 ```
 
 ## Usage

@@ -254,7 +254,7 @@ end
 
 local function debug_last(o)
   local dap = require('dap')
-  dap.disconnect()
+  dap.disconnect({ terminateDebuggee = true })
   dap.close()
   -- dap.run_last() would also work, but we want freely exchange it with run
   if o == nil then

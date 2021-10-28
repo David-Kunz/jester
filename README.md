@@ -66,7 +66,7 @@ You can specify options for all functions, these are the defaults:
   prepend = {"describe"}, -- prepend describe blocks
   expressions = {"call_expression"}, -- tree-sitter object used to scan for tests/describe blocks
   path_to_jest = './node_modules/bin/jest' -- used only for debugging
-  terminal_cwd = ":vsplit | terminal" -- used to spawn a terminal for running tests, for debugging refer to nvim-dap's config
+  terminal_cmd = ":vsplit | terminal" -- used to spawn a terminal for running tests, for debugging refer to nvim-dap's config
   dap = { -- debug adapter configuration
     type = 'node2',
     request = 'launch',

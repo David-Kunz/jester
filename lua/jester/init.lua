@@ -236,7 +236,8 @@ local function run(o)
     return o.func({ result = result, file = file, dap = o.dap, path_to_jest = o.path_to_jest })
   end
   local adjusted_cmd = adjust_cmd(cmd, result, file)
-  vim.cmd(":vsplit | terminal")
+  local terminal_cwd = o.terminal_cmd or ':vsplit | terminal'
+  vim.cmd(terminal_cwd)
   local command = ':call jobsend(b:terminal_job_id, "' .. adjusted_cmd .. '\\n")'
   vim.cmd(command)
 end

@@ -237,7 +237,6 @@ local function run(o)
   end
   local adjusted_cmd = adjust_cmd(cmd, result, file)
   local terminal_cmd = o.terminal_cmd or ':vsplit | terminal'
-  print(vim.inspect(o))
   vim.cmd(terminal_cmd)
   local command = ':call jobsend(b:terminal_job_id, "' .. adjusted_cmd .. '\\n")'
   vim.cmd(command)

@@ -243,6 +243,18 @@ local function run(o)
 end
 
 
+local function terminate(cb)
+  local dap = require('dap')
+  if dap.terminate then
+    dap.terminate({}, {}, function()
+      cb()
+    end)
+  else
+    dap.disconnect({ terminateDebuggee = true })
+    dap.close()
+  end
+end
+
 local function debug(o)
   if o == nil then
     o = {}
@@ -250,13 +262,12 @@ local function debug(o)
   if o.func == nil then
     o.func = debug_jest
   end
-  return run(o)
+  terminate(function()
+    return run(o)
+  end)
 end
 
 local function debug_last(o)
-  local dap = require('dap')
-  dap.disconnect({ terminateDebuggee = true })
-  dap.close()
   -- dap.run_last() would also work, but we want freely exchange it with run
   if o == nil then
     o = {}
@@ -265,7 +276,9 @@ local function debug_last(o)
     o.func = debug_jest
   end
   o.run_last = true
-  return run(o)
+  terminate(function()
+    return run(o)
+  end)
 end
 
 local function run_file(o)

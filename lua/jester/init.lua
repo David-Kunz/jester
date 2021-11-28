@@ -156,7 +156,7 @@ local function debug_jest(o)
   end
   local sourceMaps = o.dap.sourceMaps
   if sourceMaps == nil then
-    sourceMaps = false
+    sourceMaps = true
   end
   local protocol = o.dap.protocol
   if protocol == nil then

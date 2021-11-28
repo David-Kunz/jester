@@ -156,7 +156,11 @@ local function debug_jest(o)
   end
   local sourceMaps = o.dap.sourceMaps
   if sourceMaps == nil then
-    sourceMaps = true
+    sourceMaps = "inline"
+  end
+  local args = o.dap.args
+  if args == nil then
+    args = { "--no-cache" }
   end
   local protocol = o.dap.protocol
   if protocol == nil then
@@ -183,6 +187,7 @@ local function debug_jest(o)
         request = request,
         cwd = cwd,
         runtimeArgs = runtimeArgs,
+        args = args,
         sourceMaps = sourceMaps,
         protocol = protocol,
         skipFiles = skipFiles,

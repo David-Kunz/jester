@@ -76,7 +76,8 @@ You can specify options for all functions, these are the defaults:
     protocol = 'inspector',
     skipFiles = {'<node_internals>/**/*.js'},
     console = 'integratedTerminal',
-    port = 9229
+    port = 9229,
+    disableOptimisticBPs = true
   }
 }
 ```

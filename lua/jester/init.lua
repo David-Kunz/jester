@@ -174,6 +174,10 @@ local function debug_jest(o)
   if port == nil then
     port = 9229
   end
+  local disableOptimisticBPs = o.dap.disableOptimisticBPs
+  if disableOptimisticBPs == nil then
+    disableOptimisticBPs = true
+  end
   dap.run({
         type = type,
         request = request,
@@ -183,7 +187,8 @@ local function debug_jest(o)
         protocol = protocol,
         skipFiles = skipFiles,
         console = console,
-        port = port
+        port = port,
+        disableOptimisticBPs = disableOptimisticBPs
       })
 end
 

@@ -72,6 +72,7 @@ You can specify options for all functions, these are the defaults:
     request = 'launch',
     cwd = vim.fn.getcwd(),
     runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'},
+    args = { "--no-cache" },
     sourceMaps = true,
     protocol = 'inspector',
     skipFiles = {'<node_internals>/**/*.js'},

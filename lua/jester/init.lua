@@ -141,24 +141,26 @@ local function debug_jest(o)
   local path_to_jest = o.path_to_jest or 'node_modules/.bin/jest'
   if runtimeArgs == nil then
     if result then
-      runtimeArgs = { "--inspect-brk", path_to_jest, "--no-coverage", "-t", "$result", "--", "$file" }
+      runtimeArgs = {'--inspect-brk', path_to_jest, '--no-coverage', '-t', '$result', '--', '$file'}
     else
-      runtimeArgs = { "--inspect-brk", path_to_jest, "--no-coverage", "--", "$file" }
+      runtimeArgs = {'--inspect-brk', path_to_jest, '--no-coverage', '--', '$file'}
+    end
+    -- Adds a prefix to a table
+    -- @param prefix table
+    -- @return function
+    local prefixTable = function(prefix)
+      return function(coreTable)
+        for _, item in ipairs(coreTable) do
+          table.insert(prefix, item)
+        end
+        return prefix
+      end
     end
     local prefixed = {}
     if o.yarn then
-      prefixed = { "run" }
+      prefixed = {'run'}
     end
-    -- Adds a prefix to a table
-    local prefix = function(toPrefix)
-      return function(coreTable)
-        for _, item in ipairs(coreTable) do
-          table.insert(toPrefix, item)
-        end
-        return prefixed
-      end
-    end
-    runtimeArgs = prefix(prefixed)(runtimeArgs)
+    runtimeArgs = prefixTable(prefixed)(runtimeArgs)
   end
   for key, value in pairs(runtimeArgs) do
     if string.match(value, "$result") then
@@ -196,10 +198,15 @@ local function debug_jest(o)
   if disableOptimisticBPs == nil then
     disableOptimisticBPs = true
   end
+  local runtimeExecutable = 'node'
+  if o.yarn then
+    runtimeExecutable = 'yarn'
+  end
   dap.run({
         type = type,
         request = request,
         cwd = cwd,
+        runtimeExecutable = runtimeExecutable,
         runtimeArgs = runtimeArgs,
         args = args,
         sourceMaps = sourceMaps,

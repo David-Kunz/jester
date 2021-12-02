@@ -141,9 +141,9 @@ local function debug_jest(o)
   local path_to_jest = o.path_to_jest or 'node_modules/.bin/jest'
   if runtimeArgs == nil then
     if result then
-      runtimeArgs = {'--inspect-brk', path_to_jest, '--no-coverage', '-t', '$result', '--', '$file'}
+      runtimeArgs = {'--inspect-brk', '$path_to_jest', '--no-coverage', '-t', '$result', '--', '$file'}
     else
-      runtimeArgs = {'--inspect-brk', path_to_jest, '--no-coverage', '--', '$file'}
+      runtimeArgs = {'--inspect-brk', '$path_to_jest', '--no-coverage', '--', '$file'}
     end
   end
   for key, value in pairs(runtimeArgs) do
@@ -152,6 +152,9 @@ local function debug_jest(o)
     end
     if string.match(value, "$file") then
       runtimeArgs[key] = runtimeArgs[key]:gsub("$file", file)
+    end
+    if string.match(value, "$path_to_jest") then
+      runtimeArgs[key] = value:gsub("$path_to_jest", path_to_jest)
     end
   end
   local sourceMaps = o.dap.sourceMaps

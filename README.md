@@ -71,7 +71,7 @@ You can specify options for all functions, these are the defaults:
     type = 'node2',
     request = 'launch',
     cwd = vim.fn.getcwd(),
-    runtimeArgs = {'--inspect-brk', 'node_modules/.bin/jest', '--no-coverage', '-t', '$result', '--', '$file'},
+    runtimeArgs = {'--inspect-brk', '$path_to_jest', '--no-coverage', '-t', '$result', '--', '$file'},
     args = { "--no-cache" },
     sourceMaps = true,
     protocol = 'inspector',

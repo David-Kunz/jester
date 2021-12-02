@@ -229,10 +229,11 @@ local function run(o)
     cmd = o.cmd
   end
   if cmd == nil then
+    local path_to_jest = o.path_to_jest or 'node_modules/.bin/jest'
     if o.run_file == true then
-      cmd = "jest -- $file"
+      cmd = path_to_jest .. " -- $file"
     else
-      cmd = "jest -t '$result' -- $file"
+      cmd = path_to_jest .. " -t '$result' -- $file"
     end
   end
   if file == nil then

@@ -202,7 +202,7 @@ end
 
 local function adjust_cmd(cmd, result, file)
   local adjusted_cmd = cmd
-  if string.match(adjusted_cmd, "$result") then
+  if result and string.match(adjusted_cmd, "$result") then
       adjusted_cmd = cmd:gsub("$result", result)
   end
   if string.match(adjusted_cmd, "$file") then

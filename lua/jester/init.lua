@@ -244,7 +244,7 @@ local function run(o)
   end
   if not o.run_last and not o.run_file then
     result = get_result(o)
-    if not result then return
+    if not result then return end
   end
   last_run = { result = result, file = file, cmd = cmd }
   if o.func then

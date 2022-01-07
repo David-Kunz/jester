@@ -92,11 +92,11 @@ local function get_result(o)
     escapeRegex = true
   end
   local nearest_node_obj = find_nearest_node_obj(identifiers, prepend, expressions)
-  local nearest_node = nearest_node_obj.node
-  if not nearest_node then
+  if not nearest_node_obj then
     print("Could not find any of the following: " .. table.concat(identifiers, ", ") .. ", " .. table.concat(prepend, ", "))
     return
   end
+  local nearest_node = nearest_node_obj.node
   result = get_identifier(nearest_node, stringCharacters)
   if prepend then
     local node = prepend_node(nearest_node, prepend, expressions)

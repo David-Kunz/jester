@@ -92,7 +92,7 @@ local function get_result(o)
     escapeRegex = true
   end
   local nearest_node_obj = find_nearest_node_obj(identifiers, prepend, expressions)
-  if not nearest_node_obj then
+  if not nearest_node_obj or not nearest_node_obj.node then
     print("Could not find any of the following: " .. table.concat(identifiers, ", ") .. ", " .. table.concat(prepend, ", "))
     return
   end

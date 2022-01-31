@@ -1,4 +1,6 @@
 local ts_utils = require("nvim-treesitter.ts_utils")
+local api = vim.api
+local parsers = require "nvim-treesitter.parsers"
 
 local last_run
 
@@ -12,8 +14,36 @@ local function has_value (tab, val)
     return false
 end
 
+-- test
+function get_node_at_cursor_or_above(winnr)
+  winnr = winnr or 0
+  local cursor = api.nvim_win_get_cursor(winnr)
+  local cursor_range = { cursor[1] - 1, cursor[2] }
+
+  local buf = vim.api.nvim_win_get_buf(winnr)
+  local root_lang_tree = parsers.get_parser(buf)
+  if not root_lang_tree then
+    return
+  end
+  local root = ts_utils.get_root_for_position(cursor_range[1], cursor_range[2], root_lang_tree)
+
+  if not root then
+    return
+  end
+
+  -- Fix because comments won't yield the correct root
+  local cur_cursor_line = cursor_range[1]
+  while cur_cursor_line > 0 and root:type() ~= "program" do
+    cur_cursor_line = cur_cursor_line - 1
+    root = ts_utils.get_root_for_position(cur_cursor_line, 0, root_lang_tree)
+  end
+
+  local found = root:named_descendant_for_range(cursor_range[1], cursor_range[2], cursor_range[1], cursor_range[2])
+  return found
+end
+
 local function find_nearest_node_obj(identifiers, prepend, expressions)
-  local node = ts_utils.get_node_at_cursor()
+  local node = get_node_at_cursor_or_above()
   while node do
     local node_type = node:type()
     if has_value(expressions, node_type) then

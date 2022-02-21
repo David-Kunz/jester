@@ -353,11 +353,23 @@ local function run_last(o)
   return run(o)
 end
 
+local function terminate()
+  local dap = require('dap')
+  if dap.terminate then
+    dap.terminate({}, {}, function()
+    end)
+  else
+    dap.disconnect({ terminateDebuggee = true })
+    dap.close()
+  end
+end
+
 return {
     run = run,
     run_last = run_last,
     run_file = run_file,
     debug = debug,
     debug_last = debug_last,
-    debug_file = debug_file
+    debug_file = debug_file,
+    terminate
 }

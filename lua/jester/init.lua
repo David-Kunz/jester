@@ -371,5 +371,5 @@ return {
     debug = debug,
     debug_last = debug_last,
     debug_file = debug_file,
-    terminate
+    terminate = terminate
 }

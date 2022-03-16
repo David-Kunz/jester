@@ -291,7 +291,7 @@ end
 local function terminate(cb)
   local dap = require('dap')
   if dap.terminate then
-    dap.terminate({}, {}, function()
+    dap.terminate(nil, nil, function()
       cb()
     end)
   else
@@ -356,7 +356,7 @@ end
 local function terminate()
   local dap = require('dap')
   if dap.terminate then
-    dap.terminate({}, {}, function()
+    dap.terminate(nil, nil, function()
     end)
   else
     dap.disconnect({ terminateDebuggee = true })

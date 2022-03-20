@@ -93,8 +93,9 @@ local function get_identifier(node, stringCharacters)
     return remove_quotations(stringCharacters, ts_utils.get_node_text(arguments)[1])
 end
 
-local function regexEscape(str, doubleQuote)
-		return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%\\%1")
+local function regexEscape(str)
+    local escaped =  vim.fn.escape(str, ".+-*?^[]")
+    return vim.fn.escape(escaped, "\\")
 end
 
 local function get_result(o)
@@ -274,6 +275,8 @@ local function run(o)
   if file == nil then
     file = vim.fn.expand('%:p')
   end
+  -- normalize regex
+  file = regexEscape(file)
   if not o.run_last and not o.run_file then
     result = get_result(o)
     if not result then return end

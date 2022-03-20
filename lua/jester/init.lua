@@ -289,7 +289,6 @@ local function run(o)
   local terminal_cmd = o.terminal_cmd or ':vsplit | terminal'
   if last_used_term_buf ~= nil and api.nvim_buf_is_valid(last_used_term_buf) then
     local term_buf_win = false
-    -- api.nvim_buf_set_option(last_used_term_buf, 'modified', false)
     for _, win in pairs(api.nvim_tabpage_list_wins(0)) do
       if api.nvim_win_get_buf(win) == last_used_term_buf then
         term_buf_win = true
@@ -298,12 +297,10 @@ local function run(o)
     end
     if not term_buf_win then
       api.nvim_buf_delete(last_used_term_buf, {force=true})
-      -- vim.cmd(terminal_cmd)
       api.nvim_command(terminal_cmd)
       last_used_term_buf = vim.api.nvim_get_current_buf()
     end
   else
-    -- vim.cmd(terminal_cmd)
     api.nvim_command(terminal_cmd)
     last_used_term_buf = vim.api.nvim_get_current_buf()
   end
@@ -377,17 +374,6 @@ local function run_last(o)
   return run(o)
 end
 
-local function terminate()
-  local dap = require('dap')
-  if dap.terminate then
-    dap.terminate(nil, nil, function()
-    end)
-  else
-    dap.disconnect({ terminateDebuggee = true })
-    dap.close()
-  end
-end
-
 return {
     run = run,
     run_last = run_last,
@@ -395,5 +381,4 @@ return {
     debug = debug,
     debug_last = debug_last,
     debug_file = debug_file,
-    terminate = terminate
 }

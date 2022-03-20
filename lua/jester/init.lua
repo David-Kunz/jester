@@ -94,8 +94,7 @@ local function get_identifier(node, stringCharacters)
 end
 
 local function regexEscape(str)
-    local escaped =  vim.fn.escape(str, ".+-*?^[]")
-    return vim.fn.escape(escaped, "\\")
+    return vim.fn.escape(str, ".+-*?^[]")
 end
 
 local function get_result(o)
@@ -241,7 +240,7 @@ local function adjust_cmd(cmd, result, file)
   if string.match(adjusted_cmd, "$file") then
     adjusted_cmd = adjusted_cmd:gsub("$file", file)
   end
-  adjusted_cmd = adjusted_cmd:gsub("\\", "\\\\") -- needs double escaping
+  -- adjusted_cmd = adjusted_cmd:gsub("\\", "\\\\") -- needs double escaping
   return adjusted_cmd
 end
 
@@ -275,7 +274,6 @@ local function run(o)
   if file == nil then
     file = vim.fn.expand('%:p')
   end
-  -- normalize regex
   file = regexEscape(file)
   if not o.run_last and not o.run_file then
     result = get_result(o)
@@ -285,7 +283,8 @@ local function run(o)
   if o.func then
     return o.func({ result = result, file = file, dap = o.dap, path_to_jest = o.path_to_jest })
   end
-  local adjusted_cmd = adjust_cmd(cmd, result, file)
+
+  local adjusted_cmd = vim.fn.escape(vim.fn.escape(adjust_cmd(cmd, result, file), "\\"), '\\')
   local terminal_cmd = o.terminal_cmd or ':vsplit | terminal'
   if last_used_term_buf ~= nil and api.nvim_buf_is_valid(last_used_term_buf) then
     local term_buf_win = false

@@ -2,6 +2,8 @@ local ts_utils = require("nvim-treesitter.ts_utils")
 local api = vim.api
 local parsers = require "nvim-treesitter.parsers"
 
+local last_used_term_buf
+
 local last_run
 
 local function has_value (tab, val)
@@ -282,9 +284,28 @@ local function run(o)
   end
   local adjusted_cmd = adjust_cmd(cmd, result, file)
   local terminal_cmd = o.terminal_cmd or ':vsplit | terminal'
-  vim.cmd(terminal_cmd)
+  if last_used_term_buf ~= nil and api.nvim_buf_is_valid(last_used_term_buf) then
+    local term_buf_win = false
+    -- api.nvim_buf_set_option(last_used_term_buf, 'modified', false)
+    for _, win in pairs(api.nvim_tabpage_list_wins(0)) do
+      if api.nvim_win_get_buf(win) == last_used_term_buf then
+        term_buf_win = true
+        api.nvim_set_current_win(win)
+      end
+    end
+    if not term_buf_win then
+      api.nvim_buf_delete(last_used_term_buf, {force=true})
+      -- vim.cmd(terminal_cmd)
+      api.nvim_command(terminal_cmd)
+      last_used_term_buf = vim.api.nvim_get_current_buf()
+    end
+  else
+    -- vim.cmd(terminal_cmd)
+    api.nvim_command(terminal_cmd)
+    last_used_term_buf = vim.api.nvim_get_current_buf()
+  end
   local command = ':call jobsend(b:terminal_job_id, "' .. adjusted_cmd .. '\\n")'
-  vim.cmd(command)
+  api.nvim_command(command)
 end
 
 

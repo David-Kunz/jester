@@ -94,7 +94,7 @@ local function get_identifier(node, stringCharacters)
 end
 
 local function regexEscape(str)
-    return vim.fn.escape(str, ".+-*?^[]")
+    return vim.fn.escape(str, '!".+-*?^[]')
 end
 
 local function get_result(o)
@@ -284,7 +284,8 @@ local function run(o)
     return o.func({ result = result, file = file, dap = o.dap, path_to_jest = o.path_to_jest })
   end
 
-  local adjusted_cmd = vim.fn.escape(vim.fn.escape(adjust_cmd(cmd, result, file), "\\"), '\\')
+  -- local adjusted_cmd = vim.fn.escape(vim.fn.escape(adjust_cmd(cmd, result, file), "\\"), '\\')
+  local adjusted_cmd = vim.fn.escape(adjust_cmd(cmd, result, file), '\\')
   local terminal_cmd = o.terminal_cmd or ':vsplit | terminal'
   if last_used_term_buf ~= nil and api.nvim_buf_is_valid(last_used_term_buf) then
     local term_buf_win = false
@@ -303,8 +304,13 @@ local function run(o)
     api.nvim_command(terminal_cmd)
     last_used_term_buf = vim.api.nvim_get_current_buf()
   end
-  local command = ':call jobsend(b:terminal_job_id, "' .. adjusted_cmd .. '\\n")'
-  api.nvim_command(command)
+  local chan_id
+  for _, chan in pairs(vim.api.nvim_list_chans()) do
+    if chan.buffer == last_used_term_buf then
+      chan_id = chan.id
+    end
+  end
+  vim.api.nvim_chan_send(chan_id, adjusted_cmd .. '\n')
 end
 
 

@@ -274,12 +274,12 @@ local function run(o)
   if file == nil then
     file = vim.fn.expand('%:p')
   end
-  file = regexEscape(file)
   if not o.run_last and not o.run_file then
     result = get_result(o)
     if not result then return end
   end
   last_run = { result = result, file = file, cmd = cmd }
+  file = regexEscape(file)
   if o.func then
     return o.func({ result = result, file = file, dap = o.dap, path_to_jest = o.path_to_jest })
   end

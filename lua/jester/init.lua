@@ -1,10 +1,34 @@
+local global_options = {
+  identifiers = {"test", "it"},
+  terminal_cmd = ':vsplit | terminal',
+  path_to_jest_debug = 'node_modules/.bin/jest',
+  path_to_jest_run = 'jest',
+  stringCharacters = {"'", '"'},
+  expressions = {"call_expression"},
+  prepend = {"describe"},
+  regexStartEnd = true,
+  escapeRegex = true,
+  dap = {
+    type = 'node2',
+    request = 'launch',
+    cwd = vim.fn.getcwd(),
+    args = { "--no-cache" },
+    sourceMaps = "inline",
+    protocol = 'inspector',
+    skipFiles = {'<node_internals>/**/*.js'},
+    console = 'integratedTerminal',
+    port = 9229,
+    disableOptimisticBPs = true
+  },
+  cache = { -- used to store the information about the last run
+    last_run = nil,
+    last_used_term_buf = nil
+  }
+}
+
 local ts_utils = require("nvim-treesitter.ts_utils")
 local api = vim.api
 local parsers = require "nvim-treesitter.parsers"
-
-local last_used_term_buf
-
-local last_run
 
 local function has_value (tab, val)
     for index, value in ipairs(tab) do
@@ -97,48 +121,25 @@ local function regexEscape(str)
     return vim.fn.escape(str, '!".+-*?^[]')
 end
 
+
 local function get_result(o)
   local result
-  local identifiers = o.identifiers
-  if identifiers == nil then
-    identifiers = {"test", "it"}
-  end
-  local stringCharacters = o.stringCharacters
-  if stringCharacters == nil then
-    stringCharacters = {"'", '"'}
-  end
-  local expressions = o.expressions
-  if expressions == nil then
-    expressions = {"call_expression"}
-  end
-  local prepend = o.prepend
-  if prepend == nil then
-    prepend = {"describe"}
-  end
-  local regexStartEnd = o.regexStartEnd
-  if regexStartEnd == nil then
-    regexStartEnd = true
-  end
-  local escapeRegex = o.escapeRegex
-  if escapeRegex == nil then
-    escapeRegex = true
-  end
-  local nearest_node_obj = find_nearest_node_obj(identifiers, prepend, expressions)
+  local nearest_node_obj = find_nearest_node_obj(o.identifiers, o.prepend, o.expressions)
   if not nearest_node_obj or not nearest_node_obj.node then
-    print("Could not find any of the following: " .. table.concat(identifiers, ", ") .. ", " .. table.concat(prepend, ", "))
+    print("Could not find any of the following: " .. table.concat(o.identifiers, ", ") .. ", " .. table.concat(o.prepend, ", "))
     return
   end
   local nearest_node = nearest_node_obj.node
-  result = get_identifier(nearest_node, stringCharacters)
-  if prepend then
-    local node = prepend_node(nearest_node, prepend, expressions)
+  result = get_identifier(nearest_node, o.stringCharacters)
+  if o.prepend then
+    local node = prepend_node(nearest_node, o.prepend, o.expressions)
     while node do
-      local parent_identifier = get_identifier(node, stringCharacters)
+      local parent_identifier = get_identifier(node, o.stringCharacters)
       result = parent_identifier .. " " .. result
-      node = prepend_node(node, prepend, expressions)
+      node = prepend_node(node, o.prepend, o.expressions)
     end
   end
-  if escapeRegex then
+  if o.escapeRegex then
     result = regexEscape(result)
   end
   if regexStartEnd then
@@ -154,23 +155,14 @@ local function debug_jest(o)
   local result = o.result
   local file = o.file
   local dap = require('dap')
-  if o.dap == nil then
-    o.dap = {}
-  end
   local type = o.dap.type
-  if type == nil then
-    type = 'node2'
-  end
   local request = o.dap.request
-  if request == nil then
-    request = 'launch'
-  end
   local cwd = o.dap.cwd
   if cwd == nil then
     cwd = vim.fn.getcwd()
   end
   local runtimeArgs = o.dap.runtimeArgs
-  local path_to_jest = o.path_to_jest or 'node_modules/.bin/jest'
+  local path_to_jest = o.path_to_jest or o.path_to_jest_debug -- o.path_to_jest is only for backwards compatibility
   if runtimeArgs == nil then
     if result then
       runtimeArgs = {'--inspect-brk', '$path_to_jest', '--no-coverage', '-t', '$result', '--', '$file'}
@@ -189,47 +181,8 @@ local function debug_jest(o)
       runtimeArgs[key] = value:gsub("$path_to_jest", path_to_jest)
     end
   end
-  local sourceMaps = o.dap.sourceMaps
-  if sourceMaps == nil then
-    sourceMaps = "inline"
-  end
-  local args = o.dap.args
-  if args == nil then
-    args = { "--no-cache" }
-  end
-  local protocol = o.dap.protocol
-  if protocol == nil then
-    protocol = 'inspector'
-  end
-  local skipFiles = o.dap.skipFiles
-  if skipFiles == nil then
-    skipFiles = {'<node_internals>/**/*.js'}
-  end
-  local console = o.dap.console
-  if console == nil then
-    console = 'integratedTerminal'
-  end
-  local port = o.dap.port
-  if port == nil then
-    port = 9229
-  end
-  local disableOptimisticBPs = o.dap.disableOptimisticBPs
-  if disableOptimisticBPs == nil then
-    disableOptimisticBPs = true
-  end
-  dap.run({
-        type = type,
-        request = request,
-        cwd = cwd,
-        runtimeArgs = runtimeArgs,
-        args = args,
-        sourceMaps = sourceMaps,
-        protocol = protocol,
-        skipFiles = skipFiles,
-        console = console,
-        port = port,
-        disableOptimisticBPs = disableOptimisticBPs
-      })
+  local config = vim.tbl_deep_extend('force', o.dap, { type = type, request = request, cwd = cwd, runtimeArgs = runtimeArgs })
+  dap.run(config)
 end
 
 local function adjust_cmd(cmd, result, file)
@@ -251,68 +204,70 @@ local function run(o)
   if not o then
     o = {}
   end
-  if o.run_last then
-    if last_run == nil then
+  local options = vim.tbl_deep_extend('force', global_options, o)
+  if options.run_last then
+    if options.cache.last_run == nil then
       print("You must run some test(s) before")
       return
     end
-    result = last_run.result
-    file = last_run.file
-    cmd = last_run.cmd
+    result = options.cache.last_run.result
+    file = options.cache.last_run.file
+    cmd = options.cache.last_run.cmd
   end
-  if o.cmd then
-    cmd = o.cmd
+  if options.cmd then
+    cmd = options.cmd
   end
   if cmd == nil then
-    local path_to_jest = o.path_to_jest or 'jest'
-    if o.run_file == true then
-      cmd = path_to_jest .. " -- $file"
+    if options.run_file == true then
+      cmd = (options.path_to_jest or options.path_to_jest_run) .. " -- $file"
     else
-      cmd = path_to_jest .. " -t '$result' -- $file"
+      cmd = (options.path_to_jest or options.path_to_jest_run) .. " -t '$result' -- $file"
     end
   end
   if file == nil then
     file = vim.fn.expand('%:p')
   end
-  if not o.run_last and not o.run_file then
-    result = get_result(o)
+  if not options.run_last and not options.run_file then
+    result = get_result(options)
     if not result then return end
   end
-  last_run = { result = result, file = file, cmd = cmd }
+  global_options.cache.last_run = { result = result, file = file, cmd = cmd }
   file = regexEscape(file)
-  if o.func then
-    return o.func({ result = result, file = file, dap = o.dap, path_to_jest = o.path_to_jest })
+  if options.func then
+    return options.func(vim.tbl_deep_extend('force', options, { result = result, file = file }))
   end
 
   -- local adjusted_cmd = vim.fn.escape(vim.fn.escape(adjust_cmd(cmd, result, file), "\\"), '\\')
   local adjusted_cmd = vim.fn.escape(adjust_cmd(cmd, result, file), '\\')
-  local terminal_cmd = o.terminal_cmd or ':vsplit | terminal'
-  if last_used_term_buf ~= nil and api.nvim_buf_is_valid(last_used_term_buf) then
+  local terminal_cmd = options.terminal_cmd
+  if global_options.cache.last_used_term_buf ~= nil and api.nvim_buf_is_valid(global_options.cache.last_used_term_buf) then
     local term_buf_win = false
     for _, win in pairs(api.nvim_tabpage_list_wins(0)) do
-      if api.nvim_win_get_buf(win) == last_used_term_buf then
+      if api.nvim_win_get_buf(win) == global_options.cache.last_used_term_buf then
         term_buf_win = true
         api.nvim_set_current_win(win)
       end
     end
     if not term_buf_win then
-      api.nvim_buf_delete(last_used_term_buf, {force=true})
+      api.nvim_buf_delete(global_options.cache.last_used_term_buf, {force=true})
       api.nvim_command(terminal_cmd)
-      last_used_term_buf = vim.api.nvim_get_current_buf()
+      global_options.cache.last_used_term_buf = vim.api.nvim_get_current_buf()
     end
   else
     api.nvim_command(terminal_cmd)
-    last_used_term_buf = vim.api.nvim_get_current_buf()
+    global_options.cache.last_used_term_buf = vim.api.nvim_get_current_buf()
   end
   local chan_id
   for _, chan in pairs(vim.api.nvim_list_chans()) do
-    if chan.buffer == last_used_term_buf then
+    if chan.buffer == global_options.cache.last_used_term_buf then
       chan_id = chan.id
     end
   end
   vim.api.nvim_chan_send(chan_id, adjusted_cmd .. '\n')
 end
 
+
+-- options = vim.tbl_deep_extend('force', options, opts)
 
 local function terminate(cb)
   local dap = require('dap')
@@ -379,7 +334,12 @@ local function run_last(o)
   return run(o)
 end
 
+local function setup(o)
+  global_options = vim.tbl_deep_extend('force', global_options, o)
+end
+
 return {
+    setup = setup,
     run = run,
     run_last = run_last,
     run_file = run_file,

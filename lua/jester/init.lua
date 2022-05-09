@@ -73,7 +73,7 @@ local function find_nearest_node_obj(identifiers, prepend, expressions)
   while node do
     local node_type = node:type()
     if has_value(expressions, node_type) then
-      local node_text = vim.treesitter.query.get_node_text(node)
+      local node_text =ts_utils.get_node_text(node)
       local identifier = string.match(node_text[1], "^[a-zA-Z0-9]*")
       if has_value(identifiers, identifier) then
         return { node = node, from_identifier = true }
@@ -93,7 +93,7 @@ local function prepend_node(current_node, prepend, expressions)
   while node do
     local node_type = node:type()
     if has_value(expressions, node_type) then
-      local node_text = vim.treesitter.query.get_node_text(node)
+      local node_text =ts_utils.get_node_text(node)
       local identifier = string.match(node_text[1], "^[a-zA-Z0-9]*")
       if has_value(prepend, identifier) then
         return node
@@ -114,7 +114,7 @@ end
 local function get_identifier(node, stringCharacters)
     local child = node:child(1)
     local arguments = child:child(1)
-    return remove_quotations(stringCharacters, vim.treesitter.query.get_node_text(arguments)[1])
+    return remove_quotations(stringCharacters, ts_utils.get_node_text(arguments)[1])
 end
 
 local function regexEscape(str)

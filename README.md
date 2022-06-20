@@ -6,7 +6,8 @@ A [Neovim](https://neovim.io/) plugin to easily run and debug [Jest](https://jes
 
 ## Installation
 
-Requirements: [Neovim](https://neovim.io/) >= 0.5, [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), for debugging [nvim-dap](https://github.com/mfussenegger/nvim-dap)
+Requirements: [Neovim](https://neovim.io/) >= 0.5, [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter), for debugging [nvim-dap](https://github.com/mfussenegger/nvim-dap).
+
 Make sure that the JavaScript/TypeScript parser for [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) is installed and enabled.
 
 For [vim-plug](https://github.com/junegunn/vim-plug):

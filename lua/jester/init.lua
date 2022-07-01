@@ -11,7 +11,6 @@ local global_options = {
   dap = {
     type = 'node2',
     request = 'launch',
-    cwd = vim.fn.getcwd(),
     args = { "--no-cache" },
     sourceMaps = "inline",
     protocol = 'inspector',

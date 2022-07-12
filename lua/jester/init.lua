@@ -141,7 +141,7 @@ local function get_result(o)
   if o.escapeRegex then
     result = regexEscape(result)
   end
-  if regexStartEnd then
+  if o.regexStartEnd then
     result = "^" .. result
     if nearest_node_obj.from_identifier then
       result = result .. "$"

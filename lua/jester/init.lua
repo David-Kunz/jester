@@ -12,7 +12,6 @@ local global_options = {
     type = 'node2',
     request = 'launch',
     args = { "--no-cache" },
-    sourceMaps = "inline",
     protocol = 'inspector',
     skipFiles = {'<node_internals>/**/*.js'},
     console = 'integratedTerminal',

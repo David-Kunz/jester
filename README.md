@@ -88,6 +88,7 @@ These are the defaults:
     cwd = vim.fn.getcwd(),
     runtimeArgs = {'--inspect-brk', '$path_to_jest', '--no-coverage', '-t', '$result', '--', '$file'},
     args = { '--no-cache' },
+    sourceMaps = false,
     protocol = 'inspector',
     skipFiles = {'<node_internals>/**/*.js'},
     console = 'integratedTerminal',

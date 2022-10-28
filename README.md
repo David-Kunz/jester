@@ -106,8 +106,8 @@ You can also overwrite the options for each function call, for example
 
 ## Tip
 
-Jest usually transforms the files causing the effect of 'moving breakpoints',
-to overcome this, add this `.babelrc` file to your project's root:
+Jest usually transforms the files causing the effect of 'moving breakpoints'.
+To prevent this, add this `.babelrc` file to your project's root:
 
 ```json
 {

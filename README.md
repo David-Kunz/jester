@@ -106,7 +106,7 @@ You can also overwrite the options for each function call, for example
 
 ## Tip
 
-Jest usually transforms the files causing the effect of 'moving breakpoints'.
+Jest usually transforms the files causing breakpoints to be inserted in the wrong line.
 To prevent this, add this `.babelrc` file to your project's root:
 
 ```json

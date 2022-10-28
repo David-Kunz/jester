@@ -103,3 +103,15 @@ You can also overwrite the options for each function call, for example
 ```lua
 :lua require"jester".debug({ dap = { console = "externalTerminal" } })
 ```
+
+## Tip
+
+Jest usually transforms the files causing an effect of 'moving breakpoints',
+to overcome this add this `.babelrc` file to your project's root:
+
+```json
+{
+  "retainLines": true,
+  "sourceMap": "inline"
+}
+```

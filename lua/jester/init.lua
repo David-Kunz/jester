@@ -199,10 +199,10 @@ end
 local function run(o)
   local cmd
   local result
-  local file
   if not o then
     o = {}
   end
+  local file = o.file
   local options = vim.tbl_deep_extend('force', global_options, o)
   if options.run_last then
     if options.cache.last_run == nil then

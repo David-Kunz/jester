@@ -117,7 +117,7 @@ local function get_identifier(node, stringCharacters)
 end
 
 local function regexEscape(str)
-    return vim.fn.escape(str, '!"().+-*?^[]')
+    return vim.fn.escape(str, '!"().+-*?^[]$')
 end
 
 

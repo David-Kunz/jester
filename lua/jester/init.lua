@@ -231,7 +231,11 @@ local function run(o)
     if not result then return end
   end
   global_options.cache.last_run = { result = result, file = file, cmd = cmd }
-  file = regexEscape(file)
+
+  if options.escapeRegex==nil or options.escapeRegex then
+    file = regexEscape(file)
+  end
+
   if options.func then
     return options.func(vim.tbl_deep_extend('force', options, { result = result, file = file }))
   end

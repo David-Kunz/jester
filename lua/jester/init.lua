@@ -169,6 +169,13 @@ local function debug_jest(o)
       runtimeArgs = {'--inspect-brk', '$path_to_jest', '--no-coverage', '--', '$file'}
     end
   end
+
+  local testTimeout = o.dap.testTimeout
+
+  if testTimeout ~= nil then
+    table.insert(runtimeArgs, 3, "--testTimeout=" .. testTimeout)
+  end
+
   for key, value in pairs(runtimeArgs) do
     if string.match(value, "$result") then
       runtimeArgs[key] = value:gsub("$result", result)

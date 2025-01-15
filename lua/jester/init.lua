@@ -298,9 +298,9 @@ local function debug(o)
   if o.func == nil then
     o.func = debug_jest
   end
-  terminate(function()
-    return run(o)
-  end)
+  --terminate(function()
+  return run(o)
+  --end)
 end
 
 local function debug_last(o)
@@ -312,9 +312,9 @@ local function debug_last(o)
     o.func = debug_jest
   end
   o.run_last = true
-  terminate(function()
-    return run(o)
-  end)
+  --terminate(function()
+  return run(o)
+  --end)
 end
 
 local function run_file(o)
